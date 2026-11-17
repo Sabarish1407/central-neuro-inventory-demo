@@ -37,3 +37,7 @@ logging:
   level:
     root: INFO
     com.nuera.inventory: INFO
+  file:
+    name:
+      clean-history-on-start: true
+      max-history: 7

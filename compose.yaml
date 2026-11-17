@@ -1,0 +1,26 @@
+services:
+  inventory-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: central-neuro-inventory-demo:latest
+    container_name: central-neuro-inventory-app
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVER_PORT=8081
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:h2:file:/app/data/inventorydb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
+    volumes:
+      - inventory-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 25s
+    restart: unless-stopped
+
+volumes:
+  inventory-data:
+    driver: local

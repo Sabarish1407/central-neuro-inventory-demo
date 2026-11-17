@@ -1,0 +1,15 @@
+server:
+  port: 8081
+
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    show-sql: true
+
+logging:
+  level:
+    com.nuera.inventory: DEBUG
+    org.hibernate.SQL: DEBUG

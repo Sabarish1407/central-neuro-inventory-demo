@@ -167,6 +167,6 @@ class ProductServiceTest {
         List<ProductResponse> results = productService.searchProducts("mouse");
 
         assertThat(results).hasSize(1);
-        assertThat(results.get(0).getName()).isEqualTo("Wireless Mouse");
+        assertThat(results.getFirst().getName()).isEqualTo("Wireless Mouse");
     }
 }

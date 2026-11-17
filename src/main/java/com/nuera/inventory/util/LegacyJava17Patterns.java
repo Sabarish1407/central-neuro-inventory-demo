@@ -16,8 +16,8 @@ import java.util.Locale;
 public class LegacyJava17Patterns {
 
     public Locale createLocale(String language, String country) {
-        return new Locale(language, country);
-    };
+        return Locale.of(language, country);
+    }
 
     public URL createHttpUrl(String spec) throws MalformedURLException {
         return new URL(spec);
@@ -27,8 +27,8 @@ public class LegacyJava17Patterns {
         if (items == null || items.isEmpty()) {
             return "EMPTY";
         }
-        String first = items.get(0);
-        String last = items.get(items.size() - 1);
+        String first = items.getFirst();
+        String last = items.getLast();
         return first + " -> " + last;
     }
 

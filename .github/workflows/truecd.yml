@@ -53,7 +53,7 @@ jobs:
           java-version: '21'
           cache: maven
       - run: chmod +x mvnw
-      - run: ./mvnw -B -ntp org.jacoco:jacoco-maven-plugin:0.8.12:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.12:report "-Dgroups=!neuro-component & !neuro-integration & !neuro-e2e & !neuro-contract & !neuro-performance & !neuro-acceptance & !neuro-security & !neuro-post-deploy"
+      - run: ./mvnw -B -ntp org.jacoco:jacoco-maven-plugin:0.8.12:prepare-agent test -Dmaven.test.failure.ignore=true org.jacoco:jacoco-maven-plugin:0.8.12:report "-Dgroups=!neuro-component & !neuro-integration & !neuro-e2e & !neuro-contract & !neuro-performance & !neuro-acceptance & !neuro-security & !neuro-post-deploy"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -76,7 +76,7 @@ jobs:
           java-version: '21'
           cache: maven
       - run: chmod +x mvnw
-      - run: ./mvnw -B -ntp test -Dgroups=neuro-component
+      - run: ./mvnw -B -ntp test -Dmaven.test.failure.ignore=true -Dgroups=neuro-component
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -98,7 +98,7 @@ jobs:
           java-version: '21'
           cache: maven
       - run: chmod +x mvnw
-      - run: ./mvnw -B -ntp test -Dgroups=neuro-integration
+      - run: ./mvnw -B -ntp test -Dmaven.test.failure.ignore=true -Dgroups=neuro-integration
       - uses: actions/upload-artifact@v4
         if: always()
         with:

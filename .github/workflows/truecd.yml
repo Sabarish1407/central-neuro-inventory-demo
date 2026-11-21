@@ -108,6 +108,10 @@ jobs:
           if-no-files-found: warn
   security:
     name: 6 Security
+    # after the unit job, which saves the Maven cache for this pom: Trivy then reads dependency poms locally instead of
+    # asking Maven Central, which rate-limits the shared runner addresses (HTTP 429). Runs even if the unit job failed.
+    needs: [unit]
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

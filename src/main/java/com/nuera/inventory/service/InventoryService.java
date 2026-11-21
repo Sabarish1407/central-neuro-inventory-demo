@@ -53,8 +53,12 @@ public class InventoryService {
         }
 
         Inventory inventory = findOrCreateInventoryForProduct(productId);
-        int updatedQuantity = inventory.getAvailableQuantity() + quantity;
-        inventory.setAvailableQuantity(updatedQuantity);
+        long potentialTotal = (long) inventory.getAvailableQuantity() + (long) quantity;
+        if (potentialTotal > Integer.MAX_VALUE) {
+            throw new InvalidOperationException(
+                    "Stock addition exceeds maximum supported inventory quantity: " + Integer.MAX_VALUE);
+        }
+        inventory.setAvailableQuantity((int) potentialTotal);
 
         Inventory saved = inventoryRepository.save(inventory);
         return toResponse(saved);

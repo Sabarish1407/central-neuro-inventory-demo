@@ -52,9 +52,9 @@ class InventoryServiceNeuroTest {
     private ProductRepository productRepository;
 
     /*
-         * Covers requirement [R2]
-         * Scenario: TC-R2-02 - addStock throws on overflow exceeding MAX_VALUE
-         */
+             * Covers requirement [R2]
+             * Scenario: TC-R2-02 - addStock throws on overflow exceeding MAX_VALUE
+             */
     @Test
     @DisplayName("[R2] addStock throws on overflow exceeding MAX_VALUE")
     void test_r2_tc_r2_02() {
@@ -76,9 +76,9 @@ class InventoryServiceNeuroTest {
     }
 
     /*
-         * Covers requirement [R3]
-         * Scenario: TC-R3-01 - Stock unchanged after overflow addition rejected
-         */
+             * Covers requirement [R3]
+             * Scenario: TC-R3-01 - Stock unchanged after overflow addition rejected
+             */
     @Test
     @DisplayName("[R3] Stock unchanged after overflow addition rejected")
     void test_r3_tc_r3_01() {
@@ -101,9 +101,9 @@ class InventoryServiceNeuroTest {
     }
 
     /*
-         * Covers requirement [R3]
-         * Scenario: TC-R3-02 - Exact boundary overflow triggers rejection atomically
-         */
+             * Covers requirement [R3]
+             * Scenario: TC-R3-02 - Exact boundary overflow triggers rejection atomically
+             */
     @Test
     @DisplayName("[R3] Exact boundary overflow triggers rejection atomically")
     void test_r3_tc_r3_02() {
@@ -129,9 +129,9 @@ class InventoryServiceNeuroTest {
     }
 
     /*
-         * Covers requirement [R4]
-         * Scenario: TC-R4-01 - Add stock keeps availableQuantity non-negative
-         */
+             * Covers requirement [R4]
+             * Scenario: TC-R4-01 - Add stock keeps availableQuantity non-negative
+             */
     @Test
     @DisplayName("[R4] Add stock keeps availableQuantity non-negative")
     void test_r4_tc_r4_01() {
@@ -164,9 +164,9 @@ class InventoryServiceNeuroTest {
     }
 
     /*
-         * Covers requirement [R4]
-         * Scenario: TC-R4-02 - Add zero stock does not produce negative quantity
-         */
+             * Covers requirement [R4]
+             * Scenario: TC-R4-02 - Add zero stock does not produce negative quantity
+             */
     @Test
     @DisplayName("[R4] Add zero stock does not produce negative quantity")
     void test_r4_tc_r4_02() {
@@ -195,9 +195,9 @@ class InventoryServiceNeuroTest {
     }
 
     /*
-         * Covers requirement [R5]
-         * Scenario: TC-R5-01 - Add stock increases available quantity correctly
-         */
+             * Covers requirement [R5]
+             * Scenario: TC-R5-01 - Add stock increases available quantity correctly
+             */
     @Test
     @DisplayName("[R5] Add stock increases available quantity correctly")
     void test_r5_tc_r5_01() {
@@ -231,9 +231,9 @@ class InventoryServiceNeuroTest {
     }
 
     /*
-         * Covers requirement [R5]
-         * Scenario: TC-R5-03 - Check availability at exact stock boundary
-         */
+             * Covers requirement [R5]
+             * Scenario: TC-R5-03 - Check availability at exact stock boundary
+             */
     @Test
     @DisplayName("[R5] Check availability at exact stock boundary")
     void test_r5_tc_r5_03() {

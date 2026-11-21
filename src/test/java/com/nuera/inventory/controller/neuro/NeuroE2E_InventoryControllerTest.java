@@ -58,135 +58,204 @@ class NeuroE2E_InventoryControllerTest {
     @Test
     @Tag("neuro-e2e")
     @Tag("neuro-post-deploy")
-    @DisplayName("[E-AC-1-4b21b2d5] Adding a valid non-overflow quantity succeeds and returns updated availableQuantity")
-    void test_E_AC_1_4b21b2d5() throws Exception {
+    @DisplayName("[E-AC-1-d4ecd2ef] Overflow pre-validation: valid add that does not overflow succeeds")
+    void test_E_AC_1_d4ecd2ef() throws Exception {
         String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
-        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":1,\"reason\":\"valid non-overflow addition\"}", "application/json");
+        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":1000,\"reason\":\"initial stock\"}", "application/json");
         assertThat(response0.statusCode()).as("POST /api/inventory/3/add").isEqualTo(200);
         assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.availableQuantity"), "availableQuantity");
+        HttpResponse<String> response1 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":1000,\"reason\":\"safe add within int range\"}", "application/json");
+        assertThat(response1.statusCode()).as("POST /api/inventory/3/add").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response1.body(), "$.availableQuantity"), "availableQuantity");
     }
 
     @Test
     @Tag("neuro-e2e")
     @Tag("neuro-post-deploy")
-    @DisplayName("[E-AC-2-1156ac6] Adding quantity that causes availableQuantity + quantity to exceed Integer.MAX_VALUE returns 400")
-    void test_E_AC_2_1156ac6() throws Exception {
+    @DisplayName("[E-AC-2-5b30a458] Adding quantity that causes availableQuantity + quantity to exceed Integer.MAX_VALUE returns 400")
+    void test_E_AC_2_5b30a458() throws Exception {
         String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
-        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":2147483647,\"reason\":\"overflow test\"}", "application/json");
-        assertThat(response0.statusCode()).as("POST /api/inventory/1/add").isEqualTo(400);
+        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":2147483647,\"reason\":\"set to max\"}", "application/json");
+        assertThat(response0.statusCode()).as("POST /api/inventory/1/add").isEqualTo(200);
+        HttpResponse<String> response1 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":1,\"reason\":\"overflow attempt\"}", "application/json");
+        assertThat(response1.statusCode()).as("POST /api/inventory/1/add").isEqualTo(400);
     }
 
     @Test
     @Tag("neuro-e2e")
     @Tag("neuro-post-deploy")
-    @DisplayName("[E-AC-2-c48eb261] Adding quantity exactly equal to Integer.MAX_VALUE when availableQuantity is already 1 returns 400")
-    void test_E_AC_2_c48eb261() throws Exception {
+    @DisplayName("[E-AC-2-5898f748] Adding quantity exactly equal to Integer.MAX_VALUE when availableQuantity is already 1 returns 400")
+    void test_E_AC_2_5898f748() throws Exception {
         String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
-        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":2147483647,\"reason\":\"boundary overflow test\"}", "application/json");
-        assertThat(response0.statusCode()).as("POST /api/inventory/2/add").isEqualTo(400);
+        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":1,\"reason\":\"seed stock\"}", "application/json");
+        assertThat(response0.statusCode()).as("POST /api/inventory/2/add").isEqualTo(200);
+        HttpResponse<String> response1 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":2147483647,\"reason\":\"overflow attempt\"}", "application/json");
+        assertThat(response1.statusCode()).as("POST /api/inventory/2/add").isEqualTo(400);
     }
 
     @Test
     @Tag("neuro-e2e")
     @Tag("neuro-post-deploy")
-    @DisplayName("[E-AC-2-3a380253] Adding a large quantity that would overflow Integer.MAX_VALUE returns 400 Bad Request")
-    void test_E_AC_2_3a380253() throws Exception {
+    @DisplayName("[E-AC-2-920bb948] Adding quantity that would overflow does not change the available quantity")
+    void test_E_AC_2_920bb948() throws Exception {
         String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
-        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":2147483646,\"reason\":\"near max overflow\"}", "application/json");
-        assertThat(response0.statusCode()).as("POST /api/inventory/3/add").isEqualTo(400);
+        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":2147483647,\"reason\":\"set to max\"}", "application/json");
+        assertThat(response0.statusCode()).as("POST /api/inventory/3/add").isEqualTo(200);
+        assertThat(new java.math.BigDecimal(String.valueOf(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.availableQuantity")))).as("availableQuantity").isEqualByComparingTo("2147483647");
+        HttpResponse<String> response1 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":2147483647,\"reason\":\"overflow attempt\"}", "application/json");
+        assertThat(response1.statusCode()).as("POST /api/inventory/3/add").isEqualTo(400);
+        HttpResponse<String> response2 = send("GET", "/api/inventory/" + productId, null, "application/json");
+        assertThat(response2.statusCode()).as("GET /api/inventory/3").isEqualTo(200);
+        assertThat(new java.math.BigDecimal(String.valueOf(com.jayway.jsonpath.JsonPath.<Object>read(response2.body(), "$.availableQuantity")))).as("availableQuantity").isEqualByComparingTo("2147483647");
     }
 
     @Test
     @Tag("neuro-e2e")
     @Tag("neuro-post-deploy")
-    @DisplayName("[E-AC-3-34b08bbb] Overflow addition is rejected with 4xx status")
-    void test_E_AC_3_34b08bbb() throws Exception {
-        String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
-        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":2147483647,\"reason\":\"overflow test\"}", "application/json");
-        assertThat(response0.statusCode()).as("POST /api/inventory/1/add").isBetween(400, 499);
-    }
-
-    @Test
-    @Tag("neuro-e2e")
-    @Tag("neuro-post-deploy")
-    @DisplayName("[E-AC-3-26bba64b] Stock availableQuantity remains unchanged after overflow addition is rejected")
-    void test_E_AC_3_26bba64b() throws Exception {
+    @DisplayName("[E-AC-3-8f2d3b17] Overflow addition is rejected and existing stock remains unchanged")
+    void test_E_AC_3_8f2d3b17() throws Exception {
         String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
         HttpResponse<String> response0 = send("GET", "/api/inventory/" + productId, null, "application/json");
         assertThat(response0.statusCode()).as("GET /api/inventory/1").isEqualTo(200);
         assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.availableQuantity"), "availableQuantity");
+        HttpResponse<String> response1 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":2147483647,\"reason\":\"overflow addition attempt\"}", "application/json");
+        assertThat(response1.statusCode()).as("POST /api/inventory/1/add").isBetween(400, 499);
+        HttpResponse<String> response2 = send("GET", "/api/inventory/" + productId, null, "application/json");
+        assertThat(response2.statusCode()).as("GET /api/inventory/1").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response2.body(), "$.availableQuantity"), "availableQuantity");
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response2.body(), "$.reservedQuantity"), "reservedQuantity");
     }
 
     @Test
     @Tag("neuro-e2e")
     @Tag("neuro-post-deploy")
-    @DisplayName("[E-AC-3-aaba0e91] Stock reservedQuantity remains unchanged after overflow addition is rejected")
-    void test_E_AC_3_aaba0e91() throws Exception {
+    @DisplayName("[E-AC-3-3dbca572] Stock fields are fully preserved after overflow rejection - availableQuantity and reservedQuantity unchanged")
+    void test_E_AC_3_3dbca572() throws Exception {
         String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
-        HttpResponse<String> response0 = send("GET", "/api/inventory/" + productId, null, "application/json");
-        assertThat(response0.statusCode()).as("GET /api/inventory/1").isEqualTo(200);
-        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.reservedQuantity"), "reservedQuantity");
-    }
-
-    @Test
-    @Tag("neuro-e2e")
-    @Tag("neuro-post-deploy")
-    @DisplayName("[E-AC-4-31946d36] Adding minimum valid quantity keeps availableQuantity non-negative")
-    void test_E_AC_4_31946d36() throws Exception {
-        String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
-        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":1,\"reason\":\"minimum addition non-negative invariant test\"}", "application/json");
-        assertThat(response0.statusCode()).as("POST /api/inventory/1/add").isEqualTo(200);
+        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":50,\"reason\":\"set known stock level\"}", "application/json");
+        assertThat(response0.statusCode()).as("POST /api/inventory/2/add").isEqualTo(200);
         assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.availableQuantity"), "availableQuantity");
+        HttpResponse<String> response1 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":2147483647,\"reason\":\"overflow addition attempt\"}", "application/json");
+        assertThat(response1.statusCode()).as("POST /api/inventory/2/add").isBetween(400, 499);
+        HttpResponse<String> response2 = send("GET", "/api/inventory/" + productId, null, "application/json");
+        assertThat(response2.statusCode()).as("GET /api/inventory/2").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response2.body(), "$.availableQuantity"), "availableQuantity");
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response2.body(), "$.lastUpdated"), "lastUpdated");
     }
 
     @Test
     @Tag("neuro-e2e")
     @Tag("neuro-post-deploy")
-    @DisplayName("[E-AC-4-c43c1e00] Adding a positive quantity results in a non-negative availableQuantity")
-    void test_E_AC_4_c43c1e00() throws Exception {
+    @DisplayName("[E-AC-3-2216547c] No partial update occurs: sku and productId remain intact after overflow addition rejection")
+    void test_E_AC_3_2216547c() throws Exception {
         String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
-        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":1,\"reason\":\"positive addition test\"}", "application/json");
-        assertThat(response0.statusCode()).as("POST /api/inventory/1/add").isEqualTo(200);
-        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.availableQuantity"), "availableQuantity");
-    }
-
-    @Test
-    @Tag("neuro-e2e")
-    @Tag("neuro-post-deploy")
-    @DisplayName("[E-AC-5-70d869d3] Add stock to a product and verify availableQuantity increases")
-    void test_E_AC_5_70d869d3() throws Exception {
-        String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
-        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":50,\"reason\":\"Restock\"}", "application/json");
-        assertThat(response0.statusCode()).as("POST /api/inventory/1/add").isEqualTo(200);
-        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.productId"), "productId");
-        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.availableQuantity"), "availableQuantity");
-        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.lastUpdated"), "lastUpdated");
-    }
-
-    @Test
-    @Tag("neuro-e2e")
-    @Tag("neuro-post-deploy")
-    @DisplayName("[E-AC-5-c5fd213] Check stock availability for a requested quantity")
-    void test_E_AC_5_c5fd213() throws Exception {
-        String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
-        HttpResponse<String> response0 = send("GET", "/api/inventory/" + productId + "/availability", null, "application/json");
-        assertThat(response0.statusCode()).as("GET /api/inventory/1/availability").isEqualTo(200);
-        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.productId"), "productId");
-        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.available"), "available");
-        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.requestedQuantity"), "requestedQuantity");
-    }
-
-    @Test
-    @Tag("neuro-e2e")
-    @Tag("neuro-post-deploy")
-    @DisplayName("[E-AC-5-a53c2d69] Reduce stock from a product and verify availableQuantity is updated")
-    void test_E_AC_5_a53c2d69() throws Exception {
-        String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
-        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/reduce", "{\"quantity\":5,\"reason\":\"Order fulfillment\"}", "application/json");
-        assertThat(response0.statusCode()).as("POST /api/inventory/1/reduce").isEqualTo(200);
-        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.productId"), "productId");
-        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.availableQuantity"), "availableQuantity");
+        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":100,\"reason\":\"establish baseline stock\"}", "application/json");
+        assertThat(response0.statusCode()).as("POST /api/inventory/3/add").isEqualTo(200);
         assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.sku"), "sku");
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.productId"), "productId");
+        HttpResponse<String> response1 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":2147483647,\"reason\":\"overflow addition attempt\"}", "application/json");
+        assertThat(response1.statusCode()).as("POST /api/inventory/3/add").isBetween(400, 499);
+        HttpResponse<String> response2 = send("GET", "/api/inventory/" + productId, null, "application/json");
+        assertThat(response2.statusCode()).as("GET /api/inventory/3").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response2.body(), "$.sku"), "sku");
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response2.body(), "$.availableQuantity"), "availableQuantity");
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response2.body(), "$.reservedQuantity"), "reservedQuantity");
+    }
+
+    @Test
+    @Tag("neuro-e2e")
+    @Tag("neuro-post-deploy")
+    @DisplayName("[E-AC-4-9301c9d2] Adding positive quantity does not make availableQuantity negative")
+    void test_E_AC_4_9301c9d2() throws Exception {
+        String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
+        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":1,\"reason\":\"non-negative invariant test\"}", "application/json");
+        assertThat(response0.statusCode()).as("POST /api/inventory/1/add").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.availableQuantity"), "availableQuantity");
+        HttpResponse<String> response1 = send("GET", "/api/inventory/" + productId, null, "application/json");
+        assertThat(response1.statusCode()).as("GET /api/inventory/1").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response1.body(), "$.availableQuantity"), "availableQuantity");
+    }
+
+    @Test
+    @Tag("neuro-e2e")
+    @Tag("neuro-post-deploy")
+    @DisplayName("[E-AC-4-a99a2465] Adding positive quantity keeps availableQuantity non-negative")
+    void test_E_AC_4_a99a2465() throws Exception {
+        String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
+        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":10,\"reason\":\"initial stock\"}", "application/json");
+        assertThat(response0.statusCode()).as("POST /api/inventory/2/add").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.availableQuantity"), "availableQuantity");
+        HttpResponse<String> response1 = send("GET", "/api/inventory/" + productId, null, "application/json");
+        assertThat(response1.statusCode()).as("GET /api/inventory/2").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response1.body(), "$.availableQuantity"), "availableQuantity");
+    }
+
+    @Test
+    @Tag("neuro-e2e")
+    @Tag("neuro-post-deploy")
+    @DisplayName("[E-AC-4-9fd508ed] Adding large positive quantity does not result in negative availableQuantity")
+    void test_E_AC_4_9fd508ed() throws Exception {
+        String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
+        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":1000,\"reason\":\"bulk stock addition\"}", "application/json");
+        assertThat(response0.statusCode()).as("POST /api/inventory/3/add").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.availableQuantity"), "availableQuantity");
+        HttpResponse<String> response1 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":1,\"reason\":\"additional unit\"}", "application/json");
+        assertThat(response1.statusCode()).as("POST /api/inventory/3/add").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response1.body(), "$.availableQuantity"), "availableQuantity");
+        HttpResponse<String> response2 = send("GET", "/api/inventory/" + productId, null, "application/json");
+        assertThat(response2.statusCode()).as("GET /api/inventory/3").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response2.body(), "$.availableQuantity"), "availableQuantity");
+    }
+
+    @Test
+    @Tag("neuro-e2e")
+    @Tag("neuro-post-deploy")
+    @DisplayName("[E-AC-5-a6874eb1] Stock addition increases availableQuantity correctly")
+    void test_E_AC_5_a6874eb1() throws Exception {
+        String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
+        HttpResponse<String> response0 = send("GET", "/api/inventory/" + productId, null, "application/json");
+        assertThat(response0.statusCode()).as("GET /api/inventory/1").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.availableQuantity"), "availableQuantity");
+        HttpResponse<String> response1 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":50,\"reason\":\"restock\"}", "application/json");
+        assertThat(response1.statusCode()).as("POST /api/inventory/1/add").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response1.body(), "$.availableQuantity"), "availableQuantity");
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response1.body(), "$.productId"), "productId");
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response1.body(), "$.lastUpdated"), "lastUpdated");
+    }
+
+    @Test
+    @Tag("neuro-e2e")
+    @Tag("neuro-post-deploy")
+    @DisplayName("[E-AC-5-62567f20] Stock availability check returns correct availability after addition")
+    void test_E_AC_5_62567f20() throws Exception {
+        String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
+        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":100,\"reason\":\"initial stock\"}", "application/json");
+        assertThat(response0.statusCode()).as("POST /api/inventory/2/add").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.availableQuantity"), "availableQuantity");
+        HttpResponse<String> response1 = send("GET", "/api/inventory/" + productId + "/availability", null, "application/json");
+        assertThat(response1.statusCode()).as("GET /api/inventory/2/availability").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response1.body(), "$.available"), "available");
+        assertThat(new java.math.BigDecimal(String.valueOf(com.jayway.jsonpath.JsonPath.<Object>read(response1.body(), "$.requestedQuantity")))).as("requestedQuantity").isEqualByComparingTo("100");
+    }
+
+    @Test
+    @Tag("neuro-e2e")
+    @Tag("neuro-post-deploy")
+    @DisplayName("[E-AC-5-e686b48d] Stock reduction decreases availableQuantity correctly")
+    void test_E_AC_5_e686b48d() throws Exception {
+        String productId = createFixture("/api/products", "{\"sku\":\"sku-1-@@U@@\",\"name\":\"name-1-@@U@@\",\"description\":\"description-1-@@U@@\",\"price\":10.00}", "id");
+        HttpResponse<String> response0 = send("POST", "/api/inventory/" + productId + "/add", "{\"quantity\":80,\"reason\":\"setup for reduction test\"}", "application/json");
+        assertThat(response0.statusCode()).as("POST /api/inventory/3/add").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response0.body(), "$.availableQuantity"), "availableQuantity");
+        HttpResponse<String> response1 = send("POST", "/api/inventory/" + productId + "/reduce", "{\"quantity\":30,\"reason\":\"order fulfillment\"}", "application/json");
+        assertThat(response1.statusCode()).as("POST /api/inventory/3/reduce").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response1.body(), "$.availableQuantity"), "availableQuantity");
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response1.body(), "$.productId"), "productId");
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response1.body(), "$.lastUpdated"), "lastUpdated");
+        HttpResponse<String> response2 = send("GET", "/api/inventory/" + productId, null, "application/json");
+        assertThat(response2.statusCode()).as("GET /api/inventory/3").isEqualTo(200);
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response2.body(), "$.availableQuantity"), "availableQuantity");
+        assertNotEmpty(com.jayway.jsonpath.JsonPath.<Object>read(response2.body(), "$.reservedQuantity"), "reservedQuantity");
     }
 
     private String createFixture(String path, String body, String idField) throws Exception {

@@ -14,6 +14,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Disabled;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class NeuroIntegration_InventoryControllerTest {
@@ -55,6 +56,7 @@ class NeuroIntegration_InventoryControllerTest {
         assertThat(response0.statusCode()).as("POST /api/inventory/1/add").isBetween(400, 499);
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. , com.nuera.inventory.controller.neuro.NeuroIntegration_InventoryControllerTest.test_B_POST_api_inventory_productid_reduce_rejects_wrong_content_type, com.nuera...")
     @Test
     @Tag("neuro-integration")
     @DisplayName("[B-POST_api_inventory_productid_add-rejects-wrong-content-type] POST /api/inventory/{productId}/add rejects a request sent as text/plain")

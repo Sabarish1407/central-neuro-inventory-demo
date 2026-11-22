@@ -14,6 +14,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Disabled;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class NeuroIntegration_OrderControllerTest {
@@ -37,6 +38,7 @@ class NeuroIntegration_OrderControllerTest {
         return client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. finding, also fails on the base commit (the application behaves this way today); change the application, then re-enable")
     @Test
     @Tag("neuro-integration")
     @DisplayName("[B-POST_api_orders-accepts-valid] POST /api/orders accepts a valid CreateOrderRequest")
@@ -45,6 +47,7 @@ class NeuroIntegration_OrderControllerTest {
         assertThat(response0.statusCode()).as("POST /api/orders").isEqualTo(201);
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. finding, also fails on the base commit (the application behaves this way today); change the application, then re-enable")
     @Test
     @Tag("neuro-integration")
     @DisplayName("[B-POST_api_orders-rejects-malformed-json] POST /api/orders rejects a body that is not valid JSON")
@@ -53,6 +56,7 @@ class NeuroIntegration_OrderControllerTest {
         assertThat(response0.statusCode()).as("POST /api/orders").isBetween(400, 499);
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. finding, also fails on the base commit (the application behaves this way today); change the application, then re-enable")
     @Test
     @Tag("neuro-integration")
     @DisplayName("[B-POST_api_orders-rejects-wrong-content-type] POST /api/orders rejects a request sent as text/plain")

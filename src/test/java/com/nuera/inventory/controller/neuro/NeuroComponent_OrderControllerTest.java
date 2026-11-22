@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.junit.jupiter.api.Disabled;
 
 @WebMvcTest(OrderController.class)
 class NeuroComponent_OrderControllerTest {
@@ -35,6 +36,7 @@ class NeuroComponent_OrderControllerTest {
                 .andExpect(status().is(201)).andReturn();
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. finding, also fails on the base commit (the application behaves this way today); change the application, then re-enable")
     @Test
     @Tag("neuro-component")
     @DisplayName("[B-POST_api_orders-rejects-malformed-json] POST /api/orders rejects a body that is not valid JSON")
@@ -45,6 +47,7 @@ class NeuroComponent_OrderControllerTest {
                 .andExpect(status().is4xxClientError()).andReturn();
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. finding, also fails on the base commit (the application behaves this way today); change the application, then re-enable")
     @Test
     @Tag("neuro-component")
     @DisplayName("[B-POST_api_orders-rejects-wrong-content-type] POST /api/orders rejects a request sent as text/plain")

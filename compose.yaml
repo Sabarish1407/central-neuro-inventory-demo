@@ -10,7 +10,7 @@ services:
     environment:
       - SERVER_PORT=8081
       - SPRING_PROFILES_ACTIVE=docker
-      - DB_URL=jdbc:h2:file:/app/data/inventorydb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
+      - DB_URL=jdbc:h2:file:/app/data/inventorydb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     volumes:
       - inventory-data:/app/data
     healthcheck:

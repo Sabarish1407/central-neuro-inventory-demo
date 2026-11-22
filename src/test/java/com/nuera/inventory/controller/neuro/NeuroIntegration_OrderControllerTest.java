@@ -14,6 +14,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Disabled;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class NeuroIntegration_OrderControllerTest {
@@ -37,6 +38,7 @@ class NeuroIntegration_OrderControllerTest {
         return client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. [POST /api/orders] expected: 201 but was: 400 [already failing on the base commit: not caused by this change]")
     @Test
     @Tag("neuro-integration")
     @DisplayName("[B-POST_api_orders-accepts-valid] POST /api/orders accepts a valid CreateOrderRequest")

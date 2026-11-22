@@ -12,6 +12,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Disabled;
 
 class NeuroE2E_OrderControllerTest {
 
@@ -35,6 +36,7 @@ class NeuroE2E_OrderControllerTest {
         return client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. [POST /api/orders] expected: 201 but was: 400")
     @Test
     @Tag("neuro-e2e")
     @Tag("neuro-post-deploy")

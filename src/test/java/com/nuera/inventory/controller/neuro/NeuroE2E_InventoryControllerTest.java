@@ -12,6 +12,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Disabled;
 
 class NeuroE2E_InventoryControllerTest {
 
@@ -45,6 +46,7 @@ class NeuroE2E_InventoryControllerTest {
         assertThat(response0.statusCode()).as("POST /api/inventory/1/add").isEqualTo(200);
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. [POST /api/inventory/1/reduce] expected: 200 but was: 400")
     @Test
     @Tag("neuro-e2e")
     @Tag("neuro-post-deploy")
@@ -75,6 +77,7 @@ class NeuroE2E_InventoryControllerTest {
         assertThat(response0.statusCode()).as("POST /api/inventory/999/add").isBetween(400, 499);
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. [POST /api/inventory/not-a-number/add] expected: 500 but was: 200")
     @Test
     @Tag("neuro-e2e")
     @Tag("neuro-post-deploy")

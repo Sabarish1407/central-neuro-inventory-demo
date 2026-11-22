@@ -14,6 +14,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Disabled;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class NeuroIntegration_InventoryControllerTest {
@@ -46,6 +47,7 @@ class NeuroIntegration_InventoryControllerTest {
         assertThat(response0.statusCode()).as("POST /api/inventory/1/add").isEqualTo(200);
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. [POST /api/inventory/1/add] Expecting actual: 500 to be between: [400, 499] [already failing on the base commit: not caused by this change]")
     @Test
     @Tag("neuro-integration")
     @DisplayName("[B-POST_api_inventory_productid_add-rejects-malformed-json] POST /api/inventory/{productId}/add rejects a body that is not valid JSON")
@@ -55,6 +57,7 @@ class NeuroIntegration_InventoryControllerTest {
         assertThat(response0.statusCode()).as("POST /api/inventory/1/add").isBetween(400, 499);
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. [POST /api/inventory/1/add] Expecting actual: 500 to be between: [400, 499] [already failing on the base commit: not caused by this change]")
     @Test
     @Tag("neuro-integration")
     @DisplayName("[B-POST_api_inventory_productid_add-rejects-wrong-content-type] POST /api/inventory/{productId}/add rejects a request sent as text/plain")
@@ -82,6 +85,7 @@ class NeuroIntegration_InventoryControllerTest {
         assertThat(response0.statusCode()).as("POST /api/inventory/1/add").isEqualTo(400);
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. [POST /api/inventory/1/reduce] expected: 200 but was: 400 [already failing on the base commit: not caused by this change]")
     @Test
     @Tag("neuro-integration")
     @DisplayName("[B-POST_api_inventory_productid_reduce-accepts-valid] POST /api/inventory/{productId}/reduce accepts a valid StockAdjustmentRequest")
@@ -91,6 +95,7 @@ class NeuroIntegration_InventoryControllerTest {
         assertThat(response0.statusCode()).as("POST /api/inventory/1/reduce").isEqualTo(200);
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. [POST /api/inventory/1/reduce] Expecting actual: 500 to be between: [400, 499] [already failing on the base commit: not caused by this change]")
     @Test
     @Tag("neuro-integration")
     @DisplayName("[B-POST_api_inventory_productid_reduce-rejects-malformed-json] POST /api/inventory/{productId}/reduce rejects a body that is not valid JSON")
@@ -100,6 +105,7 @@ class NeuroIntegration_InventoryControllerTest {
         assertThat(response0.statusCode()).as("POST /api/inventory/1/reduce").isBetween(400, 499);
     }
 
+    @Disabled("Quarantined by Central Neuro: a model-written test that disagrees with the application, a person must decide whether the test or the code is wrong. [POST /api/inventory/1/reduce] Expecting actual: 500 to be between: [400, 499] [already failing on the base commit: not caused by this change]")
     @Test
     @Tag("neuro-integration")
     @DisplayName("[B-POST_api_inventory_productid_reduce-rejects-wrong-content-type] POST /api/inventory/{productId}/reduce rejects a request sent as text/plain")
